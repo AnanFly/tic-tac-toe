@@ -1,0 +1,21 @@
+.board {
+  display: flex;
+  .square {
+    width: 50px;
+    height: 50px;
+    background-color: #dfc399;
+    border: 1px solid #a27331;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    &:hover {
+      background-color: #a27331;
+    }
+    .circle {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+    }
+  }
+}
