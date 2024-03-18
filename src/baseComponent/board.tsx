@@ -1,105 +1,117 @@
-import checkWinner from '@/utils/generalWinner'
-import { Button } from 'antd'
-import { FC, useCallback, useEffect, useMemo, useState } from 'react'
-import { GameConfig } from '@/constant/gameType'
-import squareStyle from '@/style/square.module.scss'
-import Square from './square'
+import checkWinner from '@/utils/generalWinner';
+import { Button } from 'antd';
+import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { GameConfig } from '@/constant/gameType';
+import squareStyle from '@/style/square.module.scss';
+import Square from './square';
 
 interface BoardProps {
-  gameConfig: GameConfig
+    gameConfig: GameConfig;
 }
 
+/**
+ * @param gameConfig 游戏配置
+ * @returns
+ */
 const Board: FC<BoardProps> = ({ gameConfig }) => {
-  const { row, col, enumName, playerList, winLength } = gameConfig
-  const [history, setHistory] = useState<string[][][]>([
-    Array(row).fill(Array(col).fill(''))
-  ])
-  const [currentStep, setCurrentStep] = useState(0)
-  const [currentPlayer, setCurrentPlayer] = useState(playerList[0])
-  const [winner, setWinner] = useState<string | null>(null)
+    const { row, col, enumName, playerList, winLength } = gameConfig;
+    const [history, setHistory] = useState<string[][][]>([
+        Array(row).fill(Array(col).fill('')),
+    ]);
+    const [winnerStep, setWinnerStep] = useState<number>(0);
+    const [currentStep, setCurrentStep] = useState(0);
+    const [currentPlayer, setCurrentPlayer] = useState(playerList[0]);
+    const [winner, setWinner] = useState<string | null>(null);
 
-  useEffect(() => {
-    setHistory([Array(row).fill(Array(col).fill(''))])
-    setCurrentStep(0)
-    setCurrentPlayer(playerList[0])
-    setWinner(null)
-  }, [gameConfig])
+    useEffect(() => {
+        setHistory([Array(row).fill(Array(col).fill(''))]);
+        setCurrentStep(0);
+        setCurrentPlayer(playerList[0]);
+        setWinner(null);
+    }, [gameConfig]);
 
-  const handleClick = useCallback(
-    (row: number, col: number) => {
-      const currentBoard = history[currentStep]
-      if (currentBoard[row][col] || winner) return
+    const handleClick = useCallback(
+        (row: number, col: number) => {
+            const currentBoard = history[currentStep];
+            if (currentBoard[row][col] || winner) return;
+            // const newBoard = currentBoard.map((boardRow, rowIndex) =>
+            //     boardRow.map((square, colIndex) =>
+            //         (rowIndex === row && colIndex === col ? currentPlayer : square),),);
+            const newBoard = [...currentBoard];
+            newBoard[row] = [...newBoard[row]];
+            newBoard[row][col] = currentPlayer;
+            const newWinner = checkWinner({ newBoard, winLength });
+            setHistory(history.slice(0, currentStep + 1).concat([newBoard]));
+            setCurrentStep(currentStep + 1);
+            setCurrentPlayer(currentPlayer === playerList[0] ? playerList[1] : playerList[0],);
+            setWinner(newWinner);
+            if (newWinner) {
+                setWinnerStep(currentStep + 1);
+            }
+        },
+        [history, currentStep, currentPlayer, playerList, winner, winLength],
+    );
 
-      const newBoard = currentBoard.map((boardRow, rowIndex) =>
-        boardRow.map((square, colIndex) =>
-          rowIndex === row && colIndex === col ? currentPlayer : square
-        )
-      )
+    const jumpTo = useCallback((step: number) => {
+        setCurrentStep(step);
+        // 如果回到最后一步,保留原有的winner状态
+        if (step === winnerStep) {
+            setWinner(winner);
+            setCurrentPlayer(step % 2 === 0 ? playerList[0] : playerList[1]);
+        } else {
+            setWinner(null);
+            setCurrentPlayer(step % 2 === 0 ? playerList[0] : playerList[1]);
+        }
+    }, [playerList, history.length]);
 
-      const newWinner = checkWinner({ newBoard, winLength })
-      setHistory(history.slice(0, currentStep + 1).concat([newBoard]))
-      setCurrentStep(currentStep + 1)
-      setCurrentPlayer(
-        currentPlayer === playerList[0] ? playerList[1] : playerList[0]
-      )
-      setWinner(newWinner)
-    },
-    [history, currentStep, currentPlayer, playerList, winner, winLength]
-  )
+    const renderSquareValue = useMemo(
+        () => (currentValue: string) => {
+            return (
+                <Square
+                    enumName={enumName}
+                    playerList={playerList}
+                    currentValue={currentValue}
+                />
+            );
+        },
+        [enumName, playerList],
+    );
 
-  const jumpTo = useCallback((step: number) => {
-    setCurrentStep(step)
-    setWinner(null)
-  }, [])
+    const renderSquare = (row: number, col: number) => {
+        const currentValue = history[currentStep][row][col];
+        return (
+            <div
+                key={`${row}-${col}`}
+                onClick={() => handleClick(row, col)}
+                children={renderSquareValue(currentValue)}
+            />
+        );
+    };
 
-  const renderSquareValue = useMemo(
-    () => (currentValue: string) => {
-      return (
-        <Square
-          enumName={enumName}
-          playerList={playerList}
-          currentValue={currentValue}
-        />
-      )
-    },
-    [enumName, playerList]
-  )
+    const moves = history.map((__, step) => {
+        if (step === 0) return null;
+        return (
+            <Button key={step} onClick={() => jumpTo(step)}>
+                {`回退到第${step}步`}
+            </Button>
+        );
+    });
 
-  const renderSquare = (row: number, col: number) => {
-    const currentValue = history[currentStep][row][col]
     return (
-      <div
-        key={`${row}-${col}`}
-        onClick={() => handleClick(row, col)}
-        children={renderSquareValue(currentValue)}
-      />
-    )
-  }
+        <>
+            <h3>当前游戏: {GameConfig[enumName].name}</h3>
+            <h3>当前玩家: {currentPlayer}</h3>
+            {winner && <h3>胜利者: {winner}</h3>}
+            <div className={squareStyle.board}>
+                {history[currentStep].map((row, rowIndex) => (
+                    <div key={rowIndex} className="board-row">
+                        {row.map((__, colIndex) => renderSquare(rowIndex, colIndex))}
+                    </div>
+                ))}
+            </div>
+            <div>{moves}</div>
+        </>
+    );
+};
 
-  const moves = history.map((_, step) => {
-    if (step === 0) return null
-    return (
-      <Button key={step} onClick={() => jumpTo(step)}>
-        {'回退到第' + step + '步'}
-      </Button>
-    )
-  })
-
-  return (
-    <>
-      <h3>当前游戏: {GameConfig[enumName].name}</h3>
-      <h3>当前玩家: {currentPlayer}</h3>
-      {winner && <h3>胜利者: {winner}</h3>}
-      <div className={squareStyle.board}>
-        {history[currentStep].map((row, rowIndex) => (
-          <div key={rowIndex} className="board-row">
-            {row.map((_, colIndex) => renderSquare(rowIndex, colIndex))}
-          </div>
-        ))}
-      </div>
-      <div>{moves}</div>
-    </>
-  )
-}
-
-export default Board
+export default Board;

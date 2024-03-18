@@ -34,4 +34,4 @@ export const GameConfig: GameConfigMap = {
         enumName: GameType.TicTacToe,
         playerList: ['O', 'X'],
     },
-}
+};
