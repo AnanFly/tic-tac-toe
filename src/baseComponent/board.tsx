@@ -54,14 +54,8 @@ const Board: FC<BoardProps> = ({ gameConfig }) => {
 
     const jumpTo = useCallback((step: number) => {
         setCurrentStep(step);
-        // 如果回到最后一步,保留原有的winner状态
-        if (step === winnerStep) {
-            setWinner(winner);
-            setCurrentPlayer(step % 2 === 0 ? playerList[0] : playerList[1]);
-        } else {
-            setWinner(null);
-            setCurrentPlayer(step % 2 === 0 ? playerList[0] : playerList[1]);
-        }
+        setCurrentPlayer(step % 2 === 0 ? playerList[0] : playerList[1]);
+        step === winnerStep ? setWinner(winner) : setWinner(null);
     }, [playerList, history.length]);
 
     const renderSquareValue = useMemo(
