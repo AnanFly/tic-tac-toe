@@ -56,6 +56,7 @@ const Board: FC<BoardProps> = ({ gameConfig }) => {
     const jumpTo = (step: number) => {
         setCurrentStep(step);
         setCurrentPlayer(step % 2 === 0 ? playerList[0] : playerList[1]);
+        const winner = step === winnerStep ? playerList[(step % 2) - 1] : null;
         step === winnerStep ? setWinner(winner) : setWinner(null);
     };
 
