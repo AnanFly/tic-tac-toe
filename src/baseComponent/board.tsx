@@ -98,7 +98,7 @@ const Board: FC<BoardProps> = ({ gameConfig }) => {
             {winner && <h3>胜利者: {winner}</h3>}
             <div className={squareStyle.board}>
                 {history[currentStep].map((row, rowIndex) => (
-                    <div key={rowIndex} className="board-row">
+                    <div key={rowIndex} style={{ display: 'flex' }}>
                         {row.map((__, colIndex) => renderSquare(rowIndex, colIndex))}
                     </div>
                 ))}
