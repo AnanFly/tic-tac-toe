@@ -60,23 +60,6 @@ const Board: FC<BoardProps> = ({ gameConfig }) => {
         step === winnerStep ? setWinner(winner) : setWinner(null);
     };
 
-
-    const renderSquare = (row: number, col: number) => {
-        const currentValue = history[currentStep][row][col];
-        return (
-            <div
-                key={`${row}-${col}`}
-                onClick={() => handleClick(row, col)}
-            >
-                <Square
-                    enumName={enumName}
-                    playerList={playerList}
-                    currentValue={currentValue}
-                />
-            </div>
-        );
-    };
-
     const moves = history.map((__, step) => {
         if (step === 0) return null;
         return (
@@ -93,7 +76,14 @@ const Board: FC<BoardProps> = ({ gameConfig }) => {
             {winner && <h3>胜利者: {winner}</h3>}
             {history[currentStep].map((row, rowIndex) => (
                 <div key={rowIndex} style={{ display: 'flex' }}>
-                    {row.map((__, colIndex) => renderSquare(rowIndex, colIndex))}
+                    {row.map((__, colIndex) =>
+                        <Square
+                            key={`${rowIndex}-${colIndex}`}
+                            enumName={enumName}
+                            playerList={playerList}
+                            currentValue={history[currentStep][rowIndex][colIndex]}
+                            onClickQiZi={() => handleClick(rowIndex, colIndex)}
+                        />)}
                 </div>
             ))}
             {moves}

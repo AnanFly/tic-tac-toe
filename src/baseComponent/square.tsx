@@ -11,10 +11,11 @@ import { getColor } from '@/utils/toolsFun';
 const Square: FC<{
     enumName: keyof typeof GameType;
     playerList: string[];
+    onClickQiZi: () => void;
     currentValue: string;
-}> = ({ enumName, playerList, currentValue }) => {
+}> = ({ enumName, playerList, currentValue, onClickQiZi }) => {
     return (
-        <div className={squareStyle.square}>
+        <div className={squareStyle.square} onClick={onClickQiZi}>
             {enumName === 'Gobang' ? (
                 <div
                     className={squareStyle.circle}
