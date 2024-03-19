@@ -1,6 +1,7 @@
-import { FC } from 'react';
+import { FC, memo } from 'react';
 import squareStyle from '@/style/square.module.scss';
 import { GameType } from '@/constant/gameType';
+import { getColor } from '@/utils/toolsFun';
 /**
  *
  * @param enumName 游戏名称枚举
@@ -15,14 +16,6 @@ const Square: FC<{
     /**
    * 判断当前值是黑子还是白子
    */
-    function getColor (currentValue: string, playerList: string[]): string {
-        if (currentValue === playerList[0]) {
-            return 'black';
-        } else if (currentValue === playerList[1]) {
-            return 'white';
-        }
-        return '';
-    }
     return (
         <div className={squareStyle.square}>
             {enumName === 'Gobang' ? (
@@ -36,4 +29,4 @@ const Square: FC<{
         </div>
     );
 };
-export default Square;
+export default memo(Square);
