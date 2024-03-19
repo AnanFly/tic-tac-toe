@@ -13,9 +13,6 @@ const Square: FC<{
     playerList: string[];
     currentValue: string;
 }> = ({ enumName, playerList, currentValue }) => {
-    /**
-   * 判断当前值是黑子还是白子
-   */
     return (
         <div className={squareStyle.square}>
             {enumName === 'Gobang' ? (
