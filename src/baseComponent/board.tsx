@@ -1,4 +1,4 @@
-import checkWinner from '@/utils/generalWinner';
+import { isWin } from '@/utils/generalWinner';
 import { Button } from 'antd';
 import { FC, useEffect, useState } from 'react';
 import { GameConfig } from '@/constant/gameType';
@@ -39,12 +39,12 @@ const Board: FC<BoardProps> = ({ gameConfig }) => {
         const newBoard = [...currentBoard];
         newBoard[row] = [...newBoard[row]];
         newBoard[row][col] = currentPlayer;
-        const newWinner = checkWinner({ newBoard, winLength });
+        const hasWinner = isWin(newBoard, [row, col], currentPlayer, winLength);
         setHistory(history.slice(0, currentStep + 1).concat([newBoard]));
         setCurrentStep(currentStep + 1);
         setCurrentPlayer(currentPlayer === playerList[0] ? playerList[1] : playerList[0],);
-        setWinner(newWinner);
-        if (newWinner) {
+        setWinner(hasWinner ? currentPlayer : null);
+        if (hasWinner) {
             setWinnerStep(currentStep +  1);
         }
     };

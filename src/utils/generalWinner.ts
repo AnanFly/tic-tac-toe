@@ -1,68 +1,50 @@
-/* eslint-disable id-length */
-interface ChessnewBoard {
-    newBoard: string[][]; // 棋盘状态
-    winLength: number; // 定义的赢的长度
-}
 /**
- *
- * @param chessnewBoard  棋盘状态和赢的长度
- * @returns
+ * 计算连子数量
+ * @param direction 方向
+ * @param board 游戏棋盘
+ * @param lastMove 落子位置
+ * @param player 棋子样式
+ * @returns 相同棋子数量
  */
-const checkWinner = (chessBoard: ChessnewBoard): string | null => {
-    const { newBoard, winLength } = chessBoard;
-    const rows = newBoard.length;
-    const cols = newBoard[0].length;
+function calculateCount(direction: number[], board: (string | null)[][], lastMove: [number, number], player: string,) {
+    let count = 0;
+    let [row, col] = lastMove;
+    // 这个方法很显然就是单纯用来做数量计算的，并不掺杂任何其他的逻辑
+    // 所以在这里可以进行优化、边界判定等
+    while (
+        row >= 0 && col >= 0 &&
+        row < board.length && col < board[0].length &&
+        board[row][col] === player
+    ) {
+        row += direction[0];
+        col += direction[1];
+        count += 1;
+    }
+    return count;
+}
+
+/**
+ * 判断是否获胜
+ * @param board 游戏棋盘
+ * @param lastMove 落子的位置
+ * @param player 棋子样式
+ * @returns 是否获胜
+ */
+export function isWin(board: (string | null)[][], lastMove: [number, number], player: string, winLength: number): boolean {
     const directions = [
-        [0, 1],
         [1, 0],
+        [0, 1],
         [1, 1],
         [1, -1],
     ];
+    return directions.reduce((isWinning: boolean, direction: number[]) => {
+        if (isWinning) return true; // 如果已经判断出获胜，则直接返回true
 
-    /**
-     *
-     * @description 检查当前位置是否有获胜者
-     * @param rowOffset 行偏移
-     * @param colOffset 列偏移
-     */
-    const check = (row: number, col: number, rowOffset: number, colOffset: number): string | null => {
-        const player = newBoard[row][col];
-        if (!player) return null; // 如果当前位置没有棋子,直接返回null
+        const count = calculateCount(direction, board, lastMove, player);
+        const reverseDirection = [direction[0] * -1, direction[1] * -1];
+        const count2 = calculateCount(reverseDirection, board, lastMove, player);
 
-        let count = 1;
-        let r = row + rowOffset;
-        let c = col + colOffset;
-
-        // 向一个方向计算连续相同棋子的数量
-        while (r >= 0 && r < rows && c >= 0 && c < cols && newBoard[r][c] === player) {
-            count++;
-            r += rowOffset;
-            c += colOffset;
-        }
-
-        // 如果已经达到获胜条件,直接返回获胜者
-        if (count >= winLength) {
-            return player;
-        }
-
-        return null;
-    };
-
-    // 只需要检查棋盘的一半位置,利用对称性减少重复计算
-    const maxRow = Math.floor(rows / 2);
-    const maxCol = Math.floor(cols / 2);
-
-    for (let row = 0; row < maxRow; row++) {
-        for (let col = 0; col < maxCol; col++) {
-            for (const [rowOffset, colOffset] of directions) {
-                const winner = check(row, col, rowOffset, colOffset);
-                if (winner) {
-                    return winner;
-                }
-            }
-        }
-    }
-
-    return null;
-};
-export default checkWinner;
+        // 判定胜负逻辑
+        return (count + count2 - 1 >= winLength) || isWinning;
+    }, false);
+}
