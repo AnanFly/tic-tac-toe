@@ -7,18 +7,16 @@ import { useSelector, useDispatch } from 'react-redux';
 import {
     initBoard, selectBoard, setCurrentPlayer, setCurrentStep, setHistory, setWinner, setWinnerStep
 } from '../../features/boardSlice';
+import { selectGameConfig } from '@/features/appGameSlice';
 
-interface BoardProps {
-    gameConfig: GameConfig;
-}
 
 /**
  * @param gameConfig 游戏配置
  * @returns
  */
-const Board: FC<BoardProps> = ({ gameConfig }) => {
+const Board: FC = () => {
     const dispatch = useDispatch();
-    const { row, col, enumName, playerList, winLength } = gameConfig;
+    const { row, col, enumName, playerList, winLength } = useSelector(selectGameConfig).gameConfigValue;
     const { currentPlayer, currentStep, history, winner, winnerStep } = useSelector(selectBoard);
 
     useEffect(() => {
