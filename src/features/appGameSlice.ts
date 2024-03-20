@@ -21,6 +21,6 @@ export const { setGameConfig } = gameConfigSlice.actions;
 /**
  *@description 选择游戏配置
  */
-export const selectGameConfig = (state: RootState) => state.gameConfig;
+export const selectGameConfig = (state: RootState) => state.gameConfig.gameConfigValue;
 export default gameConfigSlice.reducer;
 
