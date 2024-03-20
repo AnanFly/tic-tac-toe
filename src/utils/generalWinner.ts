@@ -1,3 +1,4 @@
+/* eslint-disable space-before-function-paren */
 /**
  * 计算连子数量
  * @param direction 方向
@@ -9,8 +10,7 @@
 function calculateCount(direction: number[], board: (string | null)[][], lastMove: [number, number], player: string,) {
     let count = 0;
     let [row, col] = lastMove;
-    // 这个方法很显然就是单纯用来做数量计算的，并不掺杂任何其他的逻辑
-    // 所以在这里可以进行优化、边界判定等
+    // 计算连子数量
     while (
         row >= 0 && col >= 0 &&
         row < board.length && col < board[0].length &&

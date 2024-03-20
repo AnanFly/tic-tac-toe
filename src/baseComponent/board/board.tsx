@@ -1,9 +1,12 @@
 import { isWin } from '@/utils/generalWinner';
 import { Button } from 'antd';
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect } from 'react';
 import { GameConfig } from '@/constant/gameType';
-import Square from './square';
-import { createEmptyBoard } from '@/utils/toolsFun';
+import Square from '../square/square';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+    initBoard, selectBoard, setCurrentPlayer, setCurrentStep, setHistory, setWinner, setWinnerStep
+} from '../../features/boardSlice';
 
 interface BoardProps {
     gameConfig: GameConfig;
@@ -14,21 +17,14 @@ interface BoardProps {
  * @returns
  */
 const Board: FC<BoardProps> = ({ gameConfig }) => {
+    const dispatch = useDispatch();
     const { row, col, enumName, playerList, winLength } = gameConfig;
-    const [history, setHistory] = useState<string[][][]>([
-        createEmptyBoard(row, col),
-    ]);
-    const [winnerStep, setWinnerStep] = useState<number>(0);
-    const [currentStep, setCurrentStep] = useState(0);
-    const [currentPlayer, setCurrentPlayer] = useState(playerList[0]);
-    const [winner, setWinner] = useState<string | null>(null);
+    const { currentPlayer, currentStep, history, winner, winnerStep } = useSelector(selectBoard);
 
     useEffect(() => {
-        setHistory([createEmptyBoard(row, col)]);
-        setCurrentStep(0);
-        setCurrentPlayer(playerList[0]);
-        setWinner(null);
-    }, [gameConfig]);
+        dispatch(initBoard({ row, col }));
+    }, [row, col]);
+
 
     /**
      * 落子
@@ -40,12 +36,12 @@ const Board: FC<BoardProps> = ({ gameConfig }) => {
         newBoard[row] = [...newBoard[row]];
         newBoard[row][col] = currentPlayer;
         const hasWinner = isWin(newBoard, [row, col], currentPlayer, winLength);
-        setHistory(history.slice(0, currentStep + 1).concat([newBoard]));
-        setCurrentStep(currentStep + 1);
-        setCurrentPlayer(currentPlayer === playerList[0] ? playerList[1] : playerList[0],);
-        setWinner(hasWinner ? currentPlayer : null);
+        dispatch(setHistory([...history.slice(0, currentStep + 1), newBoard]));
+        dispatch(setCurrentStep(currentStep + 1));
+        dispatch(setCurrentPlayer(playerList[currentStep % 2 === 0 ? 1 : 0]));
+        dispatch(setWinner(hasWinner ? currentPlayer : null));
         if (hasWinner) {
-            setWinnerStep(currentStep +  1);
+            dispatch(setWinnerStep(currentStep + 1));
         }
     };
 
@@ -54,10 +50,10 @@ const Board: FC<BoardProps> = ({ gameConfig }) => {
      * @param step 步数
      */
     const jumpTo = (step: number) => {
-        setCurrentStep(step);
-        setCurrentPlayer(step % 2 === 0 ? playerList[0] : playerList[1]);
+        dispatch(setCurrentStep(step));
+        dispatch(setCurrentPlayer(playerList[step % 2 === 0 ? 0 : 1]));
         const winner = step === winnerStep ? playerList[(step % 2) - 1] : null;
-        step === winnerStep ? setWinner(winner) : setWinner(null);
+        step === winnerStep ? dispatch(setWinner(winner)) : dispatch(setWinner(null));
     };
 
     const moves = history.map((__, step) => {
@@ -74,9 +70,9 @@ const Board: FC<BoardProps> = ({ gameConfig }) => {
             <h3>当前游戏: {GameConfig[enumName].name}</h3>
             <h3>当前玩家: {currentPlayer}</h3>
             {winner && <h3>胜利者: {winner}</h3>}
-            {history[currentStep].map((row, rowIndex) => (
+            {history[currentStep]?.map((row, rowIndex) => (
                 <div key={rowIndex} style={{ display: 'flex' }}>
-                    {row.map((__, colIndex) =>
+                    {row?.map((__, colIndex) =>
                         <Square
                             key={`${rowIndex}-${colIndex}`}
                             enumName={enumName}
