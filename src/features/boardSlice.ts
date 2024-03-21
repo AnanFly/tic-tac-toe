@@ -11,7 +11,7 @@ interface initialBoardState {
 }
 
 const initialState: initialBoardState = {
-    history: [], // 整盘棋局状态
+    history: [createEmptyBoard(3, 3)], // 整盘棋局状态
     winnerStep: 0, // 赢家的步数
     currentStep: 0, // 当前步数
     currentPlayer: 'O', // 当前玩家

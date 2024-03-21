@@ -1,6 +1,6 @@
 import { isWin } from '@/utils/generalWinner';
 import { Button } from 'antd';
-import { FC, useEffect } from 'react';
+import { FC, useCallback, useEffect } from 'react';
 import { GameConfig } from '@/constant/gameType';
 import Square from '../square/square';
 import { useSelector, useDispatch } from 'react-redux';
@@ -29,7 +29,7 @@ const Board: FC<BoardProps> = ({ gameConfig }) => {
     /**
      * 落子
      */
-    const handleClick = (row: number, col: number) => {
+    const handleClick = useCallback((row: number, col: number) => {
         const currentBoard = history[currentStep];
         if (currentBoard[row][col] || winner) return;
         const newBoard = [...currentBoard];
@@ -43,7 +43,7 @@ const Board: FC<BoardProps> = ({ gameConfig }) => {
         if (hasWinner) {
             dispatch(setWinnerStep(currentStep + 1));
         }
-    };
+    }, []);
 
     /**
      *
@@ -77,8 +77,10 @@ const Board: FC<BoardProps> = ({ gameConfig }) => {
                             key={`${rowIndex}-${colIndex}`}
                             enumName={enumName}
                             playerList={playerList}
+                            rowIndex={rowIndex}
+                            colIndex={colIndex}
                             currentValue={history[currentStep][rowIndex][colIndex]}
-                            onClickQiZi={() => handleClick(rowIndex, colIndex)}
+                            onClickQiZi={handleClick}
                         />)}
                 </div>
             ))}
