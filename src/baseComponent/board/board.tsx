@@ -29,7 +29,7 @@ const Board: FC<BoardProps> = ({ gameConfig }) => {
     /**
      * 落子
      */
-    const handleClick = useCallback((row: number, col: number) => {
+    const handleClick = useCallback(((row: number, col: number) => {
         const currentBoard = history[currentStep];
         if (currentBoard[row][col] || winner) return;
         const newBoard = [...currentBoard];
@@ -43,7 +43,7 @@ const Board: FC<BoardProps> = ({ gameConfig }) => {
         if (hasWinner) {
             dispatch(setWinnerStep(currentStep + 1));
         }
-    }, []);
+    }), [history]);
 
     /**
      *
