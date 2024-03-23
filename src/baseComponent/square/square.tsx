@@ -16,6 +16,8 @@ const Square: FC<{
     colIndex: number;
     currentValue: string;
 }> = ({ enumName, playerList, currentValue, onClickQiZi, rowIndex, colIndex }) => {
+    console.log('re-render');
+
     return (
         <div className={squareStyle.square} onClick={() => onClickQiZi(rowIndex, colIndex)}>
             {enumName === 'Gobang' ? (

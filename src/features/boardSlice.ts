@@ -2,7 +2,7 @@ import { RootState } from '@/store';
 import { createEmptyBoard } from '@/utils/toolsFun';
 import { createSlice } from '@reduxjs/toolkit';
 
-interface initialBoardState {
+export interface initialBoardState {
     history: string[][][]; // 整盘棋局状态
     winnerStep: number; // 赢家的步数
     currentStep: number; // 当前步数

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { GameConfig, GameType } from './constant/gameType';
 import Board from './baseComponent/board/board';
 import { Button } from 'antd';
-import {  initBoard, resetBoard, setCurrentPlayer } from './features/boardSlice';
+import {  initBoard, resetBoard, selectBoard, setCurrentPlayer } from './features/boardSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectGameConfig, setGameConfig } from './features/appGameSlice';
 
@@ -13,6 +13,7 @@ export default function App () {
     const dispatch = useDispatch();
 
     const gameConfig = useSelector(selectGameConfig).gameConfigValue;
+    const gameParam  = useSelector(selectBoard);
 
     useEffect(() => {
         dispatch(resetBoard());
@@ -34,7 +35,7 @@ export default function App () {
             >
         切换游戏
             </Button>
-            <Board gameConfig={gameConfig} />
+            <Board gameConfig={gameConfig} gameParam={gameParam} />
         </div>
     );
 }
