@@ -35,7 +35,7 @@ export default function App () {
             >
         切换游戏
             </Button>
-            <Board gameConfig={gameConfig} gameParam={gameParam} />
+            <Board gameConfig={gameConfig} gameBoardState={gameParam} />
         </div>
     );
 }

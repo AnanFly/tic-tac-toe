@@ -12,7 +12,6 @@ export const gameConfigSlice = createSlice({
         setGameConfig: (state, action) => {
             state.gameConfigValue = action.payload;
         },
-
     },
 });
 

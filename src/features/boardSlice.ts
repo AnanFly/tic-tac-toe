@@ -37,34 +37,24 @@ export const boardSlice = createSlice({
             state.winnerStep = 0;
         },
 
-        // 更改历史记录
-        setHistory: (state, action) => {
-            state.history = action.payload;
-        },
-
-        // 更改当前步数
-        setCurrentStep: (state, action) => {
-            state.currentStep = action.payload;
-        },
-
-        // 更改当前玩家
+        // 设置当前玩家
         setCurrentPlayer: (state, action) => {
             state.currentPlayer = action.payload;
         },
 
-        // 更改赢家
-        setWinner: (state, action) => {
-            state.winner = action.payload;
-        },
-
-        // 更改赢家步数
-        setWinnerStep: (state, action) => {
-            state.winnerStep = action.payload;
+        // 更改状态
+        setBoardState: (state, action) => {
+            const { history, currentStep, currentPlayer, winner, winnerStep } = action.payload;
+            state.history = history;
+            state.currentStep = currentStep;
+            state.currentPlayer = currentPlayer;
+            state.winner = winner;
+            state.winnerStep = winnerStep;
         },
     },
 });
 
-export const { initBoard, setHistory, setCurrentPlayer, setCurrentStep, setWinner, setWinnerStep, resetBoard } = boardSlice.actions;
+export const { initBoard, resetBoard, setCurrentPlayer, setBoardState } = boardSlice.actions;
 /**
  *
  * @description 选择棋盘状态
