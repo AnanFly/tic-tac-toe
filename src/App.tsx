@@ -23,6 +23,18 @@ class App extends Component<AppProps> {
         initBoard({ row: gameConfig.row, col: gameConfig.col });
     }
 
+    /**
+     * @description 如果配置改变，重新初始化棋盘
+    */
+    componentDidUpdate (prevProps: AppProps) {
+        const { gameConfig, initBoard, setCurrentPlayer, resetBoard } = this.props;
+        if (prevProps.gameConfig.enumName !== gameConfig.enumName) {
+            resetBoard();
+            setCurrentPlayer(gameConfig.playerList[0]);
+            initBoard({ row: gameConfig.row, col: gameConfig.col });
+        }
+    }
+
     render () {
         const { gameConfig, setGameConfig } = this.props;
 

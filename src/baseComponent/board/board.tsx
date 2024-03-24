@@ -3,9 +3,7 @@ import { isWin } from '@/utils/generalWinner';
 import { Button } from 'antd';
 import { GameConfig } from '@/constant/gameType';
 import Square from '../square/square';
-import {
-    initBoard, initialBoardState, selectBoard, setCurrentPlayer, setCurrentStep, setHistory, setWinner, setWinnerStep
-} from '@/features/boardSlice';
+import { initBoard, initialBoardState, selectBoard, setBoardState } from '@/features/boardSlice';
 import { connect } from 'react-redux';
 import { selectGameConfig } from '@/features/appGameSlice';
 
@@ -13,11 +11,7 @@ interface BoardProps {
     gameConfigValue: GameConfig;
     initState: initialBoardState;
     initBoard: (config: { row: number, col: number }) => void;
-    setCurrentPlayer: (player: string) => void;
-    setCurrentStep: (step: number) => void;
-    setHistory: (history: string[][][]) => void;
-    setWinner: (winner: string | null) => void;
-    setWinnerStep: (step: number) => void;
+    setBoardState: (state: initialBoardState) => void;
 }
 
 
@@ -37,42 +31,41 @@ class Board extends Component<BoardProps, initialBoardState> {
 
         const currentBoard = history[currentStep];
         if (currentBoard[row][col] || winner) return;
+
+        // 更新棋盘数据
         const newBoard = [...currentBoard];
         newBoard[row] = [...newBoard[row]];
         newBoard[row][col] = currentPlayer;
+
+        // 判断是否有玩家获胜
         const hasWinner = isWin(newBoard, [row, col], currentPlayer, winLength);
 
-        const {
-            setHistory,
-            setCurrentStep,
-            setCurrentPlayer,
-            setWinner,
-            setWinnerStep,
-        } = this.props;
+        const { setBoardState } = this.props;
 
-        setHistory([...history.slice(0, currentStep + 1), newBoard]);
-        setCurrentStep(currentStep + 1);
-        setCurrentPlayer(playerList[currentStep % 2 === 0 ? 1 : 0]);
-        setWinner(hasWinner ? currentPlayer : null);
-        if (hasWinner) {
-            setWinnerStep(currentStep + 1);
-        }
+        // 更新棋盘状态
+        setBoardState({
+            history: [...history.slice(0, currentStep + 1), newBoard],
+            currentStep: currentStep + 1,
+            currentPlayer: playerList[currentStep % 2 === 0 ? 1 : 0],
+            winner: hasWinner ? currentPlayer : null,
+            winnerStep: hasWinner ? currentStep + 1 : 0,
+        });
     };
 
     jumpTo = (step: number) => {
         const { playerList } = this.props.gameConfigValue;
-        const { setCurrentStep, setCurrentPlayer, setWinner, initState } = this.props;
-
-        setCurrentStep(step);
-        setCurrentPlayer(playerList[step % 2 === 0 ? 0 : 1]);
-        const winner = step === initState.winnerStep ? playerList[(step % 2) - 1] : null;
-        step === initState.winnerStep ? setWinner(winner) : setWinner(null);
+        const { initState, setBoardState } = this.props;
+        setBoardState({
+            ...initState,
+            currentStep: step,
+            currentPlayer: playerList[step % 2 === 0 ? 0 : 1],
+            winner: step === initState.winnerStep ? playerList[step % 2 === 0 ? 1 : 0] : null,
+        });
     };
 
     render () {
         const { enumName } = this.props.gameConfigValue;
         const { currentPlayer, history, winner, currentStep } = this.props.initState;
-        const { gameConfigValue } = this.props;
 
         const moves = history.map((__, step) => {
             if (step === 0) return null;
@@ -88,10 +81,10 @@ class Board extends Component<BoardProps, initialBoardState> {
                 {row?.map((__, colIndex) => (
                     <Square
                         key={`${rowIndex}-${colIndex}`}
-                        enumName={enumName}
-                        playerList={gameConfigValue.playerList}
+                        row={rowIndex}
+                        col={colIndex}
                         currentValue={history[currentStep][rowIndex][colIndex]}
-                        onClickQiZi={() => this.handleClick(rowIndex, colIndex)}
+                        onClickQiZi={this.handleClick}
                     />
                 ))}
             </div>
@@ -119,11 +112,7 @@ const mapStateToProps = (state: { gameConfig: { gameConfigValue: GameConfig }, b
 
 const mapDispatchToProps = {
     initBoard,
-    setCurrentPlayer,
-    setCurrentStep,
-    setHistory,
-    setWinner,
-    setWinnerStep,
+    setBoardState,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Board);
