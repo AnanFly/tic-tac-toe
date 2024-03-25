@@ -1,6 +1,6 @@
 import { FC, memo } from 'react';
 import squareStyle from '@/style/square.module.scss';
-import { GameType } from '@/constant/gameType';
+import { GameConfig } from '@/constant/gameType';
 import { getColor } from '@/utils/toolsFun';
 /**
  *
@@ -9,13 +9,15 @@ import { getColor } from '@/utils/toolsFun';
  * @param currentValue 当前值
  */
 const Square: FC<{
-    enumName: keyof typeof GameType;
-    playerList: string[];
-    onClickQiZi: () => void;
+    gameConfig: GameConfig;
+    row:number;
+    col:number;
+    onClickQiZi: (row: number, col: number) => void;
     currentValue: string;
-}> = ({ enumName, playerList, currentValue, onClickQiZi }) => {
+}> = ({ gameConfig, currentValue, onClickQiZi, row, col }) => {
+    const { enumName, playerList } = gameConfig;
     return (
-        <div className={squareStyle.square} onClick={onClickQiZi}>
+        <div className={squareStyle.square} onClick={() => onClickQiZi(row, col)}>
             {enumName === 'Gobang' ? (
                 <div
                     className={squareStyle.circle}
