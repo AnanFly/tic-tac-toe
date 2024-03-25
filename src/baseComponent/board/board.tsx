@@ -11,7 +11,14 @@ interface BoardProps {
     gameConfig: GameConfig;
     gameBoardState: initialBoardState;
 }
-
+interface GameState  {
+    newBoard: string[][];
+    hasWinner: boolean;
+    currentPlayer: string;
+    currentStep: number;
+    playerList: string[];
+    history: string[][][];
+}
 /**
  * @param gameConfig 游戏配置
  * @returns
@@ -24,7 +31,8 @@ const Board: FC<BoardProps> = ({ gameConfig, gameBoardState }) => {
     /**
      * 更新游戏状态
      */
-    const updateGameState = (newBoard:string[][], hasWinner:Boolean, currentPlayer:string, currentStep:number, playerList:string[], history:string[][][]) => {
+    const updateGameState = (State:GameState) => {
+        const { newBoard, hasWinner, currentPlayer, currentStep, playerList, history } = State;
         dispatch(setBoardState({
             history: [...history.slice(0, currentStep + 1), newBoard],
             currentStep: currentStep + 1,
@@ -51,7 +59,7 @@ const Board: FC<BoardProps> = ({ gameConfig, gameBoardState }) => {
         newBoard[row][col] = currentPlayer;
         // 根据坐标判断四个方向是否有胜利情况
         const hasWinner = isWin(newBoard, [row, col], currentPlayer, winLength);
-        updateGameState(newBoard, hasWinner, currentPlayer, currentStep, playerList, history);
+        updateGameState({ newBoard, hasWinner, currentPlayer, currentStep, playerList, history });
     };
 
     /**
