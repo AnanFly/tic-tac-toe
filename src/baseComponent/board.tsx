@@ -15,6 +15,8 @@ interface State {
     currentStep: number;
     currentPlayer: string;
     winner: string | null;
+    playerList: string[];
+    winLength: number;
 }
 
 /**
@@ -29,12 +31,19 @@ const Board: FC<BoardProps> = ({ gameConfig }) => {
         currentStep: 0,
         currentPlayer: playerList[0],
         winner: null,
+        playerList,
+        winLength,
     });
 
     useEffect(() => {
         setBoardState({
-            ...state,
             history: [createEmptyBoard(row, col)],
+            winnerStep: 0,
+            currentStep: 0,
+            currentPlayer: playerList[0],
+            winner: null,
+            playerList,
+            winLength,
         });
     }, [gameConfig]);
 
@@ -44,17 +53,18 @@ const Board: FC<BoardProps> = ({ gameConfig }) => {
     const changeBoardState = (rowIndex:number, colIndex:number) => {
         // 拿到最新状态进行更改
         setBoardState((prevState) => {
-            const { history, currentStep, currentPlayer, winner } = prevState;
+            const { history, currentStep, currentPlayer, winner, playerList, winLength } = prevState;
             const currentBoard = history[currentStep];
-
+            // 判断是否已经有胜者或者当前格子是否已经有值
             if (currentBoard[rowIndex][colIndex] || winner) return prevState;
-
+            // 计算新的状态
             const newBoard = updateBoard(currentBoard, rowIndex, colIndex, currentPlayer);
             const hasWinner = isWin(newBoard, [rowIndex, colIndex], currentPlayer, winLength);
             const newHistory = updateHistory(prevState, newBoard);
-            const newCurrentPlayer = getNextPlayer(currentPlayer);
+            const newCurrentPlayer = getNextPlayer(currentPlayer, playerList);
             const newWinner = hasWinner ? currentPlayer : null;
             const newWinnerStep = hasWinner ? currentStep + 1 : prevState.winnerStep;
+            // 返回新的状态
             return {
                 ...prevState,
                 history: newHistory,
@@ -89,7 +99,7 @@ const Board: FC<BoardProps> = ({ gameConfig }) => {
     /**
      * @description 获取下一个玩家
      */
-    const getNextPlayer = (currentPlayer:string) => {
+    const getNextPlayer = (currentPlayer:string, playerList:string[]) => {
         const currentPlayerIndex = playerList.indexOf(currentPlayer);
         const nextPlayerIndex = (currentPlayerIndex + 1) % playerList.length;
         return playerList[nextPlayerIndex];
@@ -103,7 +113,6 @@ const Board: FC<BoardProps> = ({ gameConfig }) => {
     }, []);
 
     /**
-     *
      * @param step 步数
      */
     const jumpTo = (step: number) => {
@@ -126,20 +135,21 @@ const Board: FC<BoardProps> = ({ gameConfig }) => {
         );
     });
 
+    const currentBoard = state.history[state.currentStep];
+
     return (
         <>
             <h3>当前游戏: {GameConfig[enumName].name}</h3>
             <h3>当前玩家: {state.currentPlayer}</h3>
             {state.winner && <h3>胜利者: {state.winner}</h3>}
-            {state.history[state.currentStep].map((row, rowIndex) => (
+            {currentBoard.map((row, rowIndex) => (
                 <div key={rowIndex} style={{ display: 'flex' }}>
                     {row.map((__, colIndex) =>
                         <Square
                             key={`${rowIndex}-${colIndex}`}
                             gameConfig={gameConfig}
-                            row={rowIndex}
-                            col={colIndex}
-                            currentValue={state.history[state.currentStep][rowIndex][colIndex]}
+                            coordinates={[rowIndex, colIndex]}
+                            currentValue={currentBoard[rowIndex][colIndex]}
                             onClickQiZi={handleClick}
                         />)}
                 </div>

@@ -8,14 +8,17 @@ import { getColor } from '@/utils/toolsFun';
  * @param playerList 玩家列表
  * @param currentValue 当前值
  */
-const Square: FC<{
+interface Square {
     gameConfig: GameConfig;
-    row:number;
-    col:number;
+    coordinates: [number, number];
     onClickQiZi: (row: number, col: number) => void;
     currentValue: string;
-}> = ({ gameConfig, currentValue, onClickQiZi, row, col }) => {
+}
+/** 格子组件 */
+const Square: FC<Square> = ({ gameConfig, currentValue, onClickQiZi, coordinates }) => {
     const { enumName, playerList } = gameConfig;
+    const [row, col] = coordinates;
+
     return (
         <div className={squareStyle.square} onClick={() => onClickQiZi(row, col)}>
             {enumName === 'Gobang' ? (
