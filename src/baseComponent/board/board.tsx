@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import { isWin } from '@/utils/generalWinner';
+import { getBestMove, isWin } from '@/utils/generalWinner';
 import { Button } from 'antd';
 import { GameConfig } from '@/constant/gameType';
 import Square from '../square/square';
@@ -27,6 +27,7 @@ class Board extends Component<BoardProps, initialBoardState> {
 
     handleClick = (row: number, col: number) => {
         const { currentPlayer, currentStep, history, winner } = this.props.initState;
+
         const { playerList, winLength } = this.props.gameConfigValue;
 
         const currentBoard = history[currentStep];
@@ -50,7 +51,22 @@ class Board extends Component<BoardProps, initialBoardState> {
             winner: hasWinner ? currentPlayer : null,
             winnerStep: hasWinner ? currentStep + 1 : 0,
         });
+        // console.log('currentPlayer:', currentPlayer, 'hasWinner:', hasWinner);
+
+        if (currentPlayer === 'X' && !hasWinner) {
+            setTimeout(() => {
+                this.autoPlay();
+            }, 500);
+        }
     };
+
+    autoPlay = () => {
+        const { history } = this.props.initState;
+        // console.log('当前棋盘', history[history.length - 1]);
+
+        const [row, col] = getBestMove(history[history.length - 1], 'O', 'X');
+        this.handleClick(row, col);
+    }
 
     jumpTo = (step: number) => {
         const { playerList } = this.props.gameConfigValue;
