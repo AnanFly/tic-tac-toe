@@ -1,6 +1,6 @@
 import { Component } from 'react';
 import {  isWin, getBestAiMove } from '@/utils/generalWinner';
-import { Button, Select } from 'antd';
+import { Button, Select, Spin } from 'antd';
 import { GameConfig, GameType, aiPlayer, ownPlayer } from '@/constant/gameType';
 import Square from '../square/square';
 import { initBoard, initialBoardState, selectBoard, setBoardState } from '@/features/boardSlice';
@@ -90,10 +90,10 @@ class Board extends Component<BoardProps, initialBoardState> {
         }
     }
 
-    autoAiPlay = () => {
+    autoAiPlay = async () => {
         const { currentPlayer, history, currentStep, winner } = store.getState().board;
         if (currentPlayer === aiPlayer && !winner) {
-            const { point: [row, col] } = getBestAiMove(history[currentStep], aiPlayer);
+            const [row, col]  = await getBestAiMove(history[currentStep], aiPlayer);
             if (row === -1 || col === -1) return;
             this.handleClick(row, col);
         }
@@ -145,7 +145,9 @@ class Board extends Component<BoardProps, initialBoardState> {
                 <h3>当前游戏: {GameConfig[enumName].name}</h3>
                 <h3>当前玩家: {currentPlayer}</h3>
                 {winner && <h3>胜利者: {winner}</h3>}
-                {squares}
+                <Spin spinning={currentPlayer === aiPlayer} tip="AI思考中...">
+                    {squares}
+                </Spin>
                 {moves}
             </>
         );

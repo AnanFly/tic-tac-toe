@@ -55,8 +55,14 @@ export const isWin = (board: (string | null)[][], lastMove: [number, number], pl
  * @param board 棋盘
  * @param player 当前玩家
  */
-export const getBestAiMove = (board: string[][], player: string) => {
-    return minimax(board, player);
+export const getBestAiMove = (board: string[][], player: string): Promise<number[]> => {
+    // 模拟AI思考
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const bestMove = minimax(board, player);
+            resolve(bestMove.point);
+        }, 500);
+    });
 };
 /**
  * 极小极大算法
@@ -152,5 +158,5 @@ const getEmptyIndexies = (board: string[][]) => {
  * @description 由于不便传入最后一次落子的位置，且井字棋条件简单，故直接判断是否获胜
 */
 const winning = (board: string[][], player: string) => {
-    return isWin(board, [0, 0], player, 3);
+    return isWin(board, [1, 1], player, 3);
 };
