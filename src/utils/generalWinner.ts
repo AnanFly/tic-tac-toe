@@ -158,5 +158,19 @@ const getEmptyIndexies = (board: string[][]) => {
  * @description 由于不便传入最后一次落子的位置，且井字棋条件简单，故直接判断是否获胜
 */
 const winning = (board: string[][], player: string) => {
-    return isWin(board, [1, 1], player, 3);
+    // 所有胜利条件
+    const winArr = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+    ];
+    if (winArr.some((item) => item.every((index) => board[Math.floor(index / 3)][index % 3] === player))) {
+        return true;
+    }
+    return false;
 };
