@@ -1,7 +1,3 @@
-/* eslint-disable eqeqeq */
-/* eslint-disable id-length */
-/* eslint-disable space-before-function-paren */
-
 import { aiPlayer, ownPlayer } from '@/constant/gameType';
 
 /**
@@ -12,7 +8,7 @@ import { aiPlayer, ownPlayer } from '@/constant/gameType';
  * @param player 棋子样式
  * @returns 相同棋子数量
  */
-function calculateCount(direction: number[], board: (string | null)[][], lastMove: [number, number], player: string,) {
+const calculateCount = (direction: number[], board: (string | null)[][], lastMove: [number, number], player: string,) => {
     let count = 0;
     let [row, col] = lastMove;
     // 计算连子数量
@@ -26,7 +22,7 @@ function calculateCount(direction: number[], board: (string | null)[][], lastMov
         count += 1;
     }
     return count;
-}
+};
 
 /**
  * 判断是否获胜
@@ -35,7 +31,7 @@ function calculateCount(direction: number[], board: (string | null)[][], lastMov
  * @param player 棋子样式
  * @returns 是否获胜
  */
-export function isWin(board: (string | null)[][], lastMove: [number, number], player: string, winLength: number): boolean {
+export const isWin = (board: (string | null)[][], lastMove: [number, number], player: string, winLength: number): boolean => {
     const directions = [
         [1, 0],
         [0, 1],
@@ -52,7 +48,7 @@ export function isWin(board: (string | null)[][], lastMove: [number, number], pl
         // 判定胜负逻辑
         return (count + count2 - 1 >= winLength) || isWinning;
     }, false);
-}
+};
 
 /**
  *
@@ -89,15 +85,15 @@ const minimax = (board: string[][], player: string) => {
     }
 
     const moves = [];
-    for (let i = 0; i < availSpots.length; i++) {
+    for (let index = 0; index < availSpots.length; index++) {
         const moveInfo = {} as { point: number[], score: number };
-        const [row, col] = availSpots[i];
+        const [row, col] = availSpots[index];
         moveInfo.point = [row, col];
 
         // 将空位设置为当前玩家
         newBoard[row][col] = player;
 
-        if (player == aiPlayer) {
+        if (player === aiPlayer) {
             const result = minimax(newBoard, ownPlayer);
             moveInfo.score = result.score;
         } else {
@@ -115,19 +111,19 @@ const minimax = (board: string[][], player: string) => {
     let bestMove;
     if (player === aiPlayer) {
         let bestScore = -10000;
-        for (let i = 0; i < moves.length; i++) {
-            if (moves[i].score > bestScore) {
-                bestScore = moves[i].score;
-                bestMove = i;
+        for (let index = 0; index < moves.length; index++) {
+            if (moves[index].score > bestScore) {
+                bestScore = moves[index].score;
+                bestMove = index;
             }
         }
     } else {
         // 循环遍历移动并选择得分最低的移动
         let bestScore = 10000;
-        for (let i = 0; i < moves.length; i++) {
-            if (moves[i].score < bestScore) {
-                bestScore = moves[i].score;
-                bestMove = i;
+        for (let index = 0; index < moves.length; index++) {
+            if (moves[index].score < bestScore) {
+                bestScore = moves[index].score;
+                bestMove = index;
             }
         }
     }
@@ -151,8 +147,11 @@ const getEmptyIndexies = (board: string[][]) => {
     return emptyIndexies;
 };
 
-/** */
-function winning(board: string[][], player: string) {
+/**
+ * 判断是否获胜
+ * @description 由于不便传入最后一次落子的位置，且井字棋条件简单，故直接判断是否获胜
+*/
+const winning = (board: string[][], player: string) => {
     // 所有胜利条件
     const winArr = [
         [0, 1, 2],
@@ -168,4 +167,4 @@ function winning(board: string[][], player: string) {
         return true;
     }
     return false;
-}
+};
