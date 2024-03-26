@@ -35,3 +35,8 @@ export const GameConfig: GameConfigMap = {
         playerList: ['O', 'X'],
     },
 };
+
+type PlayerType = 'O' | 'X';
+// 井字棋真人玩家 | AI玩家
+export const ownPlayer: PlayerType = 'O';
+export const aiPlayer: PlayerType = 'X';

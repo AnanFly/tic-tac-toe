@@ -61,10 +61,20 @@ export const boardSlice = createSlice({
         setWinnerStep: (state, action) => {
             state.winnerStep = action.payload;
         },
+
+        // 更改状态
+        setBoardState: (state, action) => {
+            const { history, currentStep, currentPlayer, winner, winnerStep } = action.payload;
+            state.history = history;
+            state.currentStep = currentStep;
+            state.currentPlayer = currentPlayer;
+            state.winner = winner;
+            state.winnerStep = winnerStep;
+        },
     },
 });
 
-export const { initBoard, setHistory, setCurrentPlayer, setCurrentStep, setWinner, setWinnerStep, resetBoard } = boardSlice.actions;
+export const { initBoard, setHistory, setBoardState, setCurrentPlayer, setCurrentStep, setWinner, setWinnerStep, resetBoard } = boardSlice.actions;
 /**
  *
  * @description 选择棋盘状态
