@@ -1,3 +1,4 @@
+/* eslint-disable id-length */
 import { aiPlayer, ownPlayer } from '@/constant/gameType';
 
 /**
@@ -155,22 +156,14 @@ const getEmptyIndexies = (board: string[][]) => {
 
 /**
  * 判断是否获胜
- * @description 由于不便传入最后一次落子的位置，且井字棋条件简单，故直接判断是否获胜
 */
 const winning = (board: string[][], player: string) => {
-    // 所有胜利条件
-    const winArr = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6],
-    ];
-    if (winArr.some((item) => item.every((index) => board[Math.floor(index / 3)][index % 3] === player))) {
-        return true;
+    for (let i = 0; i < board.length; i++) {
+        for (let j = 0; j < board[i].length; j++) {
+            if (isWin(board, [i, j], player, 3)) {
+                return true;
+            }
+        }
     }
     return false;
 };
