@@ -145,7 +145,7 @@ class Board extends Component<BoardProps, initialBoardState> {
                 <h3>当前游戏: {GameConfig[enumName].name}</h3>
                 <h3>当前玩家: {currentPlayer}</h3>
                 {winner && <h3>胜利者: {winner}</h3>}
-                <Spin spinning={currentPlayer === aiPlayer} tip="AI思考中...">
+                <Spin spinning={currentPlayer === aiPlayer && !winner && store.getState().board.history.length < 9}>
                     {squares}
                 </Spin>
                 {moves}
