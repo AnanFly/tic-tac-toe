@@ -52,7 +52,6 @@ export const isWin = (board: (string | null)[][], lastMove: [number, number], pl
 };
 
 /**
- *
  * @param board 棋盘
  * @param player 当前玩家
  */
@@ -60,16 +59,17 @@ export const getBestAiMove = (board: string[][], player: string): Promise<number
     // 模拟AI思考
     return new Promise((resolve) => {
         setTimeout(() => {
-            const bestMove = minimax(board, player);
+            const bestMove = minimax(board, player, -Infinity, Infinity);
             resolve(bestMove.point);
         }, 500);
     });
 };
+
 /**
  * 极小极大算法
  * @description 计算每个位置的得分，返回最高得分的位置
  */
-const minimax = (board: string[][], player: string) => {
+const minimax = (board: string[][], player: string, alpha: number, beta: number, depth = 0) => {
     const newBoard = board.map((row) => [...row]);
     // 获取棋盘空位
     const availSpots = getEmptyIndexies(newBoard);
@@ -77,12 +77,12 @@ const minimax = (board: string[][], player: string) => {
     if (winning(newBoard, ownPlayer)) {
         return {
             point: [-1, -1],
-            score: -10,
+            score: -10 + depth,
         };
     } else if (winning(newBoard, aiPlayer)) {
         return {
             point: [-1, -1],
-            score: 10,
+            score: 10 - depth,
         };
     } else if (availSpots.length === 0) {
         return {
@@ -101,11 +101,13 @@ const minimax = (board: string[][], player: string) => {
         newBoard[row][col] = player;
 
         if (player === aiPlayer) {
-            const result = minimax(newBoard, ownPlayer);
+            const result = minimax(newBoard, ownPlayer, alpha, beta, depth + 1);
             moveInfo.score = result.score;
+            alpha = Math.max(alpha, result.score);
         } else {
-            const result = minimax(newBoard, aiPlayer);
+            const result = minimax(newBoard, aiPlayer, alpha, beta, depth + 1);
             moveInfo.score = result.score;
+            beta = Math.min(beta, result.score);
         }
 
         // 重置空位
@@ -113,20 +115,24 @@ const minimax = (board: string[][], player: string) => {
 
         // 将对象推入数组
         moves.push(moveInfo);
+
+        if (beta <= alpha) {
+            break; // Alpha-Beta剪枝
+        }
     }
 
     let bestMove;
     if (player === aiPlayer) {
-        let bestScore = -10000;
+        let bestScore = -Infinity;
         for (let index = 0; index < moves.length; index++) {
-            if (moves[index].score > bestScore) {
+            if (moves[index].score > bestScore) { // 循环遍历移动并选择得分最高的移动
                 bestScore = moves[index].score;
                 bestMove = index;
             }
         }
     } else {
         // 循环遍历移动并选择得分最低的移动
-        let bestScore = 10000;
+        let bestScore = Infinity;
         for (let index = 0; index < moves.length; index++) {
             if (moves[index].score < bestScore) {
                 bestScore = moves[index].score;
