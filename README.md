@@ -22,6 +22,11 @@ export const GameConfig: GameConfigMap = {
     },
 };
 
+# 分支说明
+普通功能上，master分支，class分支都有，class分支特别支持了AI
+状态管理上，propstate分支没有使用redux管理状态
+```
+
 ```
 # 如何运行
 
