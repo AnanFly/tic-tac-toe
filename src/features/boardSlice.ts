@@ -8,6 +8,8 @@ export interface initialBoardState {
     currentStep: number; // 当前步数
     currentPlayer: string; // 当前玩家
     winner: string | null; // 赢家
+    firstRole?: string; // 先手玩家
+    loading?: boolean; // 是否加载中
 }
 
 const initialState: initialBoardState = {

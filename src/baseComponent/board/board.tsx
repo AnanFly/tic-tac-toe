@@ -14,13 +14,17 @@ interface BoardProps {
     initState: initialBoardState;
     initBoard: (config: { row: number, col: number }) => void;
     setBoardState: (state: initialBoardState) => void;
-    resetBoard: () => void;
 }
 
 
 class Board extends Component<BoardProps, initialBoardState> {
     constructor (props: BoardProps) {
         super(props);
+        this.state = {
+            ...props.initState,
+            firstRole: ownPlayer,
+            loading: false,
+        };
     }
 
     componentDidMount () {
@@ -63,16 +67,20 @@ class Board extends Component<BoardProps, initialBoardState> {
     };
 
     jumpTo = (step: number) => {
+        const { firstRole } = this.state;
         const { playerList } = this.props.gameConfigValue;
         const { initState, setBoardState } = this.props;
-        const { currentPlayer } = store.getState().board;
-        const findRoleIndex = playerList.findIndex((role) => role === currentPlayer);
         setBoardState({
             ...initState,
             currentStep: step,
-            currentPlayer: playerList[(findRoleIndex + 1) % 2],
+            currentPlayer: firstRole === ownPlayer ? playerList[step % 2] : playerList[(step + 1) % 2],
             winner: step === initState.winnerStep ? playerList[step % 2 === 0 ? 1 : 0] : null,
         });
+
+        // 如果当前玩家是AI，且没有胜利者，自动落子
+        if (playerList[(firstRole === ownPlayer ? step : step + 1)  % 2] === aiPlayer && step !== initState.winnerStep) {
+            this.autoAiPlay();
+        }
     };
 
     // 选择先手
@@ -85,12 +93,14 @@ class Board extends Component<BoardProps, initialBoardState> {
             winner: null,
             currentPlayer: value === ownPlayer ? ownPlayer : aiPlayer,
         });
+        this.setState({ firstRole: value });
         if (value === aiPlayer) {
             this.autoAiPlay();
         }
     }
 
     autoAiPlay = async () => {
+        this.setState({ loading: true });
         const { currentPlayer, history, currentStep, winner } = store.getState().board;
         if (currentPlayer === aiPlayer && !winner) {
             const [row, col]  = await getBestAiMove(history[currentStep], aiPlayer);
@@ -144,13 +154,16 @@ class Board extends Component<BoardProps, initialBoardState> {
                 }
                 <h3>当前游戏: {GameConfig[enumName].name}</h3>
                 <h3>当前玩家: {currentPlayer}</h3>
-                {winner && <h3>胜利者: {winner}</h3>}
+                {winner && <h3 style={{ color: 'red' }}>胜利者: {winner}</h3>}
+                {currentStep === 9 && !winner && <h3 style={{ color: 'red' }}>
+                    平局
+                </h3>}
                 <Spin
                     spinning={
                         currentPlayer === aiPlayer && // 到AI的时候展示loading
-                    !winner && // 有胜利者的时候不展示loading
-                    history.length <= 9 && // 平局的时候不展示loading
-                    currentStep === history.length - 1 // 回退的时候不展示loading
+                        !winner && // 有胜利者的时候不展示loading
+                        history.length <= 9 && // 平局的时候不展示loading
+                        this.state.loading
                     }
                     tip="AI思考中..."
                 >
