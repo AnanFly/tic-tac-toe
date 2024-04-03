@@ -36,7 +36,7 @@ class Board extends Component<BoardProps, initialBoardState> {
         const { currentPlayer, currentStep, history, winner } = store.getState().board;
         const { enumName } =  store.getState().gameConfig.gameConfigValue;
         const { playerList, winLength } = this.props.gameConfigValue;
-
+        const { firstRole } = this.state;
         const currentBoard = history[currentStep];
         if (currentBoard[row][col] || winner) return;
 
@@ -50,15 +50,13 @@ class Board extends Component<BoardProps, initialBoardState> {
 
         const { setBoardState } = this.props;
 
-        const findRoleIndex = playerList.findIndex((role) => role === currentPlayer);
-
-        // 更新棋盘状态
         setBoardState({
             history: [...history.slice(0, currentStep + 1), newBoard],
             currentStep: currentStep + 1,
-            currentPlayer: playerList[(findRoleIndex + 1) % 2],
-            winner: hasWinner ? currentPlayer : null,
+            // 考虑到井字棋有先手切换的情况，所以这里需要判断
+            currentPlayer: (enumName === GameType.TicTacToe && firstRole === ownPlayer) || enumName === GameType.Gobang ? playerList[currentStep % 2 === 0 ? 1 : 0] : playerList[currentStep % 2],
             winnerStep: hasWinner ? currentStep + 1 : 0,
+            winner: hasWinner ? currentPlayer : null,
         });
         // 只有井字棋且当前玩家是AI时，才会自动落子
         if (store.getState().board.currentPlayer === aiPlayer && !hasWinner && enumName === GameType.TicTacToe) {
@@ -68,17 +66,18 @@ class Board extends Component<BoardProps, initialBoardState> {
 
     jumpTo = (step: number) => {
         const { firstRole } = this.state;
-        const { playerList } = this.props.gameConfigValue;
+        const { playerList, enumName } = this.props.gameConfigValue;
         const { initState, setBoardState } = this.props;
+
         setBoardState({
             ...initState,
             currentStep: step,
-            currentPlayer: firstRole === ownPlayer ? playerList[step % 2] : playerList[(step + 1) % 2],
-            winner: step === initState.winnerStep ? playerList[step % 2 === 0 ? 1 : 0] : null,
+            currentPlayer: (enumName === GameType.TicTacToe && firstRole === ownPlayer) || enumName === GameType.Gobang ? playerList[step % 2 === 0 ? 0 : 1] : playerList[(step + 1) % 2],
+            winner: step === initState.winnerStep ? playerList[firstRole === aiPlayer ? step % 2 : (step + 1) % 2] : null,
         });
 
         // 如果当前玩家是AI，且没有胜利者，自动落子
-        if (playerList[(firstRole === ownPlayer ? step : step + 1)  % 2] === aiPlayer && step !== initState.winnerStep) {
+        if (playerList[(firstRole === ownPlayer && enumName === GameType.TicTacToe ? step : step + 1)  % 2] === aiPlayer && step !== initState.winnerStep) {
             this.autoAiPlay();
         }
     };
@@ -155,9 +154,10 @@ class Board extends Component<BoardProps, initialBoardState> {
                 <h3>当前游戏: {GameConfig[enumName].name}</h3>
                 <h3>当前玩家: {currentPlayer}</h3>
                 {winner && <h3 style={{ color: 'red' }}>胜利者: {winner}</h3>}
-                {currentStep === 9 && !winner && <h3 style={{ color: 'red' }}>
+                {currentStep === 9 && !winner && enumName === GameType.TicTacToe &&
+                 <h3 style={{ color: 'red' }}>
                     平局
-                </h3>}
+                 </h3>}
                 <Spin
                     spinning={
                         currentPlayer === aiPlayer && // 到AI的时候展示loading
